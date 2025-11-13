@@ -38,30 +38,27 @@ export default function HourlyForecast({
   }
 
   const now = new Date();
+
   const upcoming = forecast.filter((f) => new Date(f.time) >= now);
-  const displayData = upcoming.slice(0, 24);
+
+  const displayData = upcoming.slice(0, 9);
   const current = {
     time: now.toISOString(),
     temp: displayData[0]?.temp || forecast[0]?.temp || 0,
     condition:
       displayData[0]?.condition || forecast[0]?.condition || "ensolarado",
   };
+
   const allHours = [current, ...displayData];
+  if (allHours.length < 10) {
+    const missing = 10 - allHours.length;
+    const filler = forecast.slice(0, missing);
+    allHours.push(...filler);
+  }
 
-  // TODO: estou determina o número de colunas dinamicamente
-  const totalItems = allHours.length;
-  const numCols =
-    totalItems <= 4
-      ? totalItems
-      : totalItems <= 8
-      ? 4
-      : totalItems <= 10
-      ? 5
-      : 6;
-
-  // TODO: estou dividindo os itens em linhas
+  const numCols = 5;
   const rows: HourForecast[][] = [];
-  for (let i = 0; i < totalItems; i += numCols) {
+  for (let i = 0; i < 10; i += numCols) {
     rows.push(allHours.slice(i, i + numCols));
   }
 
@@ -123,29 +120,29 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0,0,0,0.25)",
   },
   container: {
-    paddingVertical: 16,
+    paddingVertical: 10,
   },
   row: {
     flexDirection: "row",
     justifyContent: "space-around",
     alignItems: "center",
-    paddingVertical: 4,
+    paddingVertical: 16,
   },
   rowIcon: {
     flexDirection: "row",
     alignItems: "center",
   },
   divider: {
+    alignSelf: "center",
+    width: "90%",
     borderBottomWidth: 1,
     borderColor: "rgba(255, 255, 255, 0.3)",
-    alignSelf: "stretch",
-    marginHorizontal: 12,
   },
   hourItem: {
     alignItems: "center",
   },
   hourText: {
-    fontSize: 13,
+    fontSize: 10,
     fontWeight: "600",
     color: "#fff",
   },

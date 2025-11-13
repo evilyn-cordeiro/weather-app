@@ -81,7 +81,7 @@ export function getColorByWeather(condition: string, period: string) {
     return "#99B8CC";
   }
 
-  return "#FAE2BD";
+  return "#7FC3AE";
 }
 
 export function getFontColorByWeather(condition: string, period: string) {
@@ -111,7 +111,7 @@ export function getFontColorByWeather(condition: string, period: string) {
     return "#E4F1F9";
   }
 
-  return "#FFFFFF"; // fallback neutro
+  return "#F1f1f1"; // fallback neutro
 }
 
 
