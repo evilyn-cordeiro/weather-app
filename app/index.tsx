@@ -5,13 +5,14 @@ import { getWeather } from "@/src/services/weatherService";
 import {
   generateTip,
   getColorByWeather,
-  getIconByWeather,
+  getFontColorByWeather,
   getPeriod,
   selectBackground,
 } from "@/src/utils/weatherHelpers";
 
+import HourlyForecast from "@/src/components/HourlyForecast";
 import React, { useEffect, useState } from "react";
-import { ImageBackground, StyleSheet, Text, View } from "react-native";
+import { ImageBackground, StyleSheet, View } from "react-native";
 
 export default function App() {
   const [weather, setWeather] = useState<any>(null);
@@ -36,28 +37,43 @@ export default function App() {
   if (loading || !background) return <Loader />;
 
   const { temp_c, condition } = weather.current;
-  const city = weather.location.name;
   const period = getPeriod();
 
   const color = getColorByWeather(condition.text, period);
-  const icon = getIconByWeather(condition.text);
+  const fontColor = getFontColorByWeather(condition.text, period);
   const time = new Date().toLocaleTimeString("pt-BR", {
     hour: "2-digit",
     minute: "2-digit",
   });
 
   return (
-    <ImageBackground source={background} style={styles.background}>
+    <ImageBackground
+      source={background}
+      style={styles.background}
+      resizeMode="cover"
+    >
+      {" "}
       <View style={styles.overlay}>
         <TopContainer
           color={color}
           condition={weather.current.condition.text}
           temperature={weather.current.temp_c}
+          feelsLike={weather.current.feelslike_c}
           city={weather.location.name}
+          region={weather.location.region}
           time={time}
+          sunset={weather.forecast.forecastday[0].astro.sunset}
+          fontColor={fontColor}
         />
-
-        <Text style={styles.condition}>{condition.text}</Text>
+        <HourlyForecast
+          forecast={
+            weather?.forecast?.forecastday?.[0]?.hour?.map((h: any) => ({
+              time: h.time,
+              temp: h.temp_c,
+              condition: h.condition.text,
+            })) || []
+          }
+        />
 
         <TipCard tip={generateTip(temp_c, condition.text)} />
       </View>
@@ -66,13 +82,16 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
-  background: { flex: 1, resizeMode: "cover" },
+  background: {
+    flex: 1,
+    width: "100%",
+    height: "100%",
+  },
   overlay: {
     flex: 1,
     backgroundColor: "rgba(0,0,0,0.3)",
     alignItems: "center",
     justifyContent: "flex-start",
-    paddingTop: 60,
+    paddingTop: 40,
   },
-  condition: { color: "#fff", fontSize: 22, marginTop: 10, fontWeight: "500" },
 });
