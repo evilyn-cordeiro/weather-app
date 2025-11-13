@@ -106,7 +106,14 @@ export default function TopContainer({
 
       {/* ÍCONE + TEMPERATURA */}
       <View style={styles.tempRow}>
-        <WeatherIcon condition={condition} size={64} />
+        {(condition.toLowerCase().includes("chuva") ||
+          condition.toLowerCase().includes("neve") ||
+          condition.toLowerCase().includes("nublado") ||
+          condition.toLowerCase().includes("cloud") ||
+          condition.toLowerCase().includes("sol") ||
+          condition.toLowerCase().includes("sunny")) && (
+          <WeatherIcon condition={condition} size={64} />
+        )}
         <Text style={[styles.tempText, { color: fontColor }]}>
           {Math.round(temperature)}°
         </Text>

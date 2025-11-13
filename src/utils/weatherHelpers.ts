@@ -27,7 +27,7 @@ export function selectBackground(condition: string) {
     night: {
       cloudy: require("../../assets/backgrounds/night/cloudy.png"),
       rain: require("../../assets/backgrounds/night/rain.png"),
-      sunny: require("../../assets/backgrounds/morning/sunny.png"),
+      sunny: require("../../assets/backgrounds/night/rain.png"),
       snow: require("../../assets/backgrounds/night/rain.png"),
     },
   };
@@ -81,7 +81,7 @@ export function getColorByWeather(condition: string, period: string) {
     return "#99B8CC";
   }
 
-  return "#7FC3AE";
+  return "#8ebdd5ff";
 }
 
 export function getFontColorByWeather(condition: string, period: string) {
