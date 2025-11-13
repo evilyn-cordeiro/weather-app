@@ -8,7 +8,7 @@ interface TipCardProps {
 export default function TipCard({ tip }: TipCardProps) {
   return (
     <View style={styles.tipContainer}>
-      <Text style={styles.tipTitle}>💡 Dica do dia</Text>
+      <Text style={styles.tipTitle}>Dica do dia</Text>
       <Text style={styles.tipText}>{tip}</Text>
     </View>
   );
@@ -17,16 +17,16 @@ export default function TipCard({ tip }: TipCardProps) {
 const styles = StyleSheet.create({
   tipContainer: {
     padding: 16,
-    backgroundColor: "rgba(255,255,255,0.2)",
     borderRadius: 12,
-    marginTop: 30,
+    marginTop: 20,
     width: "80%",
   },
   tipTitle: {
     color: "#fff",
     fontWeight: "bold",
     marginBottom: 8,
-    textAlign: "center",
+    fontSize:18,
+    textAlign: "justify",
   },
-  tipText: { color: "#fff", textAlign: "center", fontSize: 14 },
+  tipText: { color: "#fff", textAlign: "justify", fontSize: 16},
 });

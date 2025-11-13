@@ -35,22 +35,41 @@ export function selectBackground(condition: string) {
   return paths[period][type];
 }
 
+
+export const getWeatherIcon = (condition?: string) => {
+  const cond = condition?.toLowerCase() || "";
+  if (cond.includes("chuva") || cond.includes("rain")) return "weather-rainy";
+  if (cond.includes("neve") || cond.includes("snow")) return "weather-snowy";
+  if (cond.includes("nublado") || cond.includes("cloud")) return "weather-cloudy";
+  return "weather-sunny";
+};
+
+export const formatHour = (timeStr: string, index: number) => {
+  if (index === 0) return "AGORA";
+  const date = new Date(timeStr);
+  let hour = date.getHours();
+  const ampm = hour >= 12 ? "PM" : "AM";
+  hour = hour % 12 || 12;
+  return `${hour.toString().padStart(2, "0")}:00 ${ampm}`;
+};
+
+
 export function getColorByWeather(condition: string, period: string) {
   const cond = condition.toLowerCase();
 
-  // NUBLADO ☁️
+  // NUBLADO
   if (cond.includes("nublado") || cond.includes("cloud")) {
     if (period === "morning") return "#91B4C6";
     if (period === "afternoon") return "#5A8BAB";
     return "#9090AC"; // noite
   }
 
-  // ENSOLARADO ☀️
+  // ENSOLARADO
   if (cond.includes("sol") || cond.includes("sunny")) {
     return "#FAE2BD";
   }
 
-  // CHUVOSO 🌧️
+  // CHUVOSO
   if (cond.includes("chuva") || cond.includes("rain")) {
     if (period === "morning") return "#7FC3AE";
     if (period === "afternoon") return "#40666A";
@@ -68,26 +87,26 @@ export function getColorByWeather(condition: string, period: string) {
 export function getFontColorByWeather(condition: string, period: string) {
   const cond = condition.toLowerCase();
 
-  // NUBLADO ☁️
+  // NUBLADO
   if (cond.includes("nublado") || cond.includes("cloud")) {
     if (period === "morning") return "#CAD7DF";
     if (period === "afternoon") return "#AED5E4";
     return "#484A82"; // noite
   }
 
-  // ENSOLARADO ☀️
+  // ENSOLARADO
   if (cond.includes("sol") || cond.includes("sunny")) {
     return "#EFAA82";
   }
 
-  // CHUVOSO 🌧️
+  // CHUVOSO
   if (cond.includes("chuva") || cond.includes("rain")) {
     if (period === "morning") return "#C9E8E0";
     if (period === "afternoon") return "#C9E8E0";
     return "#C2B8FF"; // noite
   }
 
-  // NEVANDO ❄️
+  // NEVANDO
   if (cond.includes("neve") || cond.includes("snow")) {
     return "#E4F1F9";
   }
@@ -115,11 +134,11 @@ export function getPeriod() {
 export function generateTip(temp: number, condition: string) {
   const cond = condition.toLowerCase();
   if (cond.includes("chuva"))
-    return "Leve um guarda-chuva e evite sair sem capa de chuva ☔";
+    return "Leve um guarda-chuva e evite sair sem capa de chuva.";
   if (cond.includes("neve"))
-    return "Vista-se bem! O clima está gelado e pode nevar ❄️";
-  if (temp > 30) return "Hidrate-se bem e evite o sol forte entre 10h e 16h ☀️";
+    return "Vista-se bem! O clima está gelado e pode nevar.";
+  if (temp > 30) return "Hidrate-se bem e evite o sol forte entre 10h e 16h.";
   if (temp < 20)
-    return "Clima ameno — bom momento para um café ou uma caminhada leve ☕";
-  return "Dia agradável para aproveitar ao ar livre 🌤️";
+    return "Clima ameno — bom momento para um café ou uma caminhada leve.";
+  return "Dia agradável para aproveitar ao ar livre!";
 }

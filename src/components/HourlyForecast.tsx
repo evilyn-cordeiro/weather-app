@@ -1,4 +1,9 @@
-import { getColorByWeather, getPeriod } from "@/src/utils/weatherHelpers";
+import {
+  formatHour,
+  getColorByWeather,
+  getPeriod,
+  getWeatherIcon,
+} from "@/src/utils/weatherHelpers";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { BlurView } from "expo-blur";
 import React from "react";
@@ -24,24 +29,6 @@ export default function HourlyForecast({
     conditionColor ||
     getColorByWeather(forecast[0]?.condition || "ensolarado", period);
 
-  const getIcon = (condition?: string) => {
-    const cond = condition?.toLowerCase() || "";
-    if (cond.includes("chuva") || cond.includes("rain")) return "weather-rainy";
-    if (cond.includes("neve") || cond.includes("snow")) return "weather-snowy";
-    if (cond.includes("nublado") || cond.includes("cloud"))
-      return "weather-cloudy";
-    return "weather-sunny";
-  };
-
-  const getHour = (timeStr: string, index: number) => {
-    if (index === 0) return "AGORA";
-    const date = new Date(timeStr);
-    let hour = date.getHours();
-    const ampm = hour >= 12 ? "PM" : "AM";
-    hour = hour % 12 || 12;
-    return `${hour.toString().padStart(2, "0")}:00 ${ampm}`;
-  };
-
   if (!forecast || forecast.length === 0) {
     return (
       <View style={styles.container}>
@@ -51,66 +38,72 @@ export default function HourlyForecast({
   }
 
   const now = new Date();
-  const upcoming = forecast.filter((f) => new Date(f.time) >= now).slice(0, 10);
-  const displayData = upcoming.length > 0 ? upcoming : forecast.slice(0, 10);
+  const upcoming = forecast.filter((f) => new Date(f.time) >= now);
+  const displayData = upcoming.slice(0, 24);
   const current = {
     time: now.toISOString(),
-    temp: displayData[0]?.temp || 0,
-    condition: displayData[0]?.condition || "ensolarado",
+    temp: displayData[0]?.temp || forecast[0]?.temp || 0,
+    condition:
+      displayData[0]?.condition || forecast[0]?.condition || "ensolarado",
   };
+  const allHours = [current, ...displayData];
 
-  const nextHours = [current, ...displayData];
-  const firstRow = nextHours.slice(0, 5);
-  const secondRow = nextHours.slice(5, 10);
+  // TODO: estou determina o número de colunas dinamicamente
+  const totalItems = allHours.length;
+  const numCols =
+    totalItems <= 4
+      ? totalItems
+      : totalItems <= 8
+      ? 4
+      : totalItems <= 10
+      ? 5
+      : 6;
+
+  // TODO: estou dividindo os itens em linhas
+  const rows: HourForecast[][] = [];
+  for (let i = 0; i < totalItems; i += numCols) {
+    rows.push(allHours.slice(i, i + numCols));
+  }
 
   return (
-    <View style={[styles.wrapper, { backgroundColor: `${baseColor}30` }]}>
+    <View style={[styles.wrapper, { backgroundColor: `${baseColor}40` }]}>
       <BlurView
-        intensity={60}
+        intensity={50}
         tint="light"
         style={StyleSheet.absoluteFillObject}
       />
-
       <View style={styles.darkOverlay} />
 
       <View style={styles.container}>
-        <View style={styles.row}>
-          {firstRow.map((item, index) => (
-            <View key={index} style={styles.hourItem}>
-              <Text style={styles.hourText}>{getHour(item.time, index)}</Text>
-              <View style={styles.row}>
-                <MaterialCommunityIcons
-                  name={getIcon(item.condition)}
-                  size={26}
-                  color="#fff"
-                  style={{ marginVertical: 4 }}
-                />
-                <Text style={styles.tempText}>{Math.round(item.temp)}°</Text>
-              </View>
+        {rows.map((row, rowIndex) => (
+          <React.Fragment key={rowIndex}>
+            <View style={styles.row}>
+              {row.map((item, index) => (
+                <View
+                  key={index}
+                  style={[styles.hourItem, { width: `${100 / numCols - 4}%` }]}
+                >
+                  <Text style={styles.hourText}>
+                    {formatHour(item.time, rowIndex * numCols + index)}
+                  </Text>
+                  <View style={styles.rowIcon}>
+                    <MaterialCommunityIcons
+                      name={getWeatherIcon(item.condition)}
+                      size={20}
+                      color="#fff"
+                      style={{ marginVertical: 4 }}
+                    />
+                    <Text style={styles.tempText}>
+                      {Math.round(item.temp)}°
+                    </Text>
+                  </View>
+                </View>
+              ))}
             </View>
-          ))}
-        </View>
 
-        <View style={styles.divider} />
-
-        <View style={styles.row}>
-          {secondRow.map((item, index) => (
-            <View key={index} style={styles.hourItem}>
-              <Text style={styles.hourText}>
-                {getHour(item.time, index + 5)}
-              </Text>
-              <View style={styles.row}>
-                <MaterialCommunityIcons
-                  name={getIcon(item.condition)}
-                  size={26}
-                  color="#fff"
-                  style={{ marginVertical: 4 }}
-                />
-                <Text style={styles.tempText}>{Math.round(item.temp)}°</Text>
-              </View>
-            </View>
-          ))}
-        </View>
+            {rowIndex < rows.length - 1 && <View style={styles.divider} />}
+          </React.Fragment>
+        ))}
       </View>
     </View>
   );
@@ -118,7 +111,7 @@ export default function HourlyForecast({
 
 const styles = StyleSheet.create({
   wrapper: {
-    width: "90%",
+    width: 360,
     alignSelf: "center",
     borderRadius: 20,
     overflow: "hidden",
@@ -127,7 +120,7 @@ const styles = StyleSheet.create({
   },
   darkOverlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(0,0,0,0.25)", // 👈 leve camada escura para melhorar contraste
+    backgroundColor: "rgba(0,0,0,0.25)",
   },
   container: {
     paddingVertical: 16,
@@ -136,7 +129,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-around",
     alignItems: "center",
-    paddingVertical: 8,
+    paddingVertical: 4,
+  },
+  rowIcon: {
+    flexDirection: "row",
+    alignItems: "center",
   },
   divider: {
     borderBottomWidth: 1,
@@ -146,7 +143,6 @@ const styles = StyleSheet.create({
   },
   hourItem: {
     alignItems: "center",
-    width: "18%",
   },
   hourText: {
     fontSize: 13,

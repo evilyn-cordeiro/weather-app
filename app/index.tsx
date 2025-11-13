@@ -50,7 +50,7 @@ export default function App() {
     <ImageBackground
       source={background}
       style={styles.background}
-      resizeMode="cover"
+      resizeMode="stretch"
     >
       {" "}
       <View style={styles.overlay}>
@@ -74,7 +74,6 @@ export default function App() {
             })) || []
           }
         />
-
         <TipCard tip={generateTip(temp_c, condition.text)} />
       </View>
     </ImageBackground>
@@ -83,7 +82,6 @@ export default function App() {
 
 const styles = StyleSheet.create({
   background: {
-    flex: 1,
     width: "100%",
     height: "100%",
   },
